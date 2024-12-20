@@ -97,7 +97,7 @@ Signal_Received = modulated_signal + Noise_Equation;
 
 SNR_Values = 0:1:20;
 P_Error_thr = zeros(1,length(SNR_Values)); %probability of error theorotical
-P_Error_prc = ones(1,length(SNR_Values)); %probability of error practical
+P_Error_prc = zeros(1,length(SNR_Values)); %probability of error practical
 SNR_Real = 10.^(SNR_Values / 10); % Element-wise division and power operation to get SNR values
 for i = 1:length(SNR_Values)
 
