@@ -23,7 +23,7 @@ hold on; % to save figure
 grid on %to add grids to image
 xlabel('Real');
 ylabel('Imaginary');
-title('Concentration Digram');
+title('Constellation Diagram');
 
 [Row,Column] = size(data_binary_BaseBand);  %take care!!!!!!
 
@@ -93,50 +93,37 @@ Noise_Equation = sqrt(Noise_Power/2)*Uniform_Noise;
 
 Signal_Received = modulated_signal + Noise_Equation;
 
-
-figure;
-plot(t_total(1:plot_sample), Signal_Received(1:plot_sample), 'g', 'LineWidth', 1.5);
-hold on
-plot(t_total(1:plot_sample), Noise_Equation(1:plot_sample), 'r', 'LineWidth', 1.5);
-xlabel('Time (s)');
-ylabel('Amplitude');
-title(' recieved signal @(20 dB)');
-grid on
-legend('Signal Received','Noise');
-
-
 %calculating noise in theoretical & practical:
 
 SNR_Values = 0:1:20;
 P_Error_thr = zeros(1,length(SNR_Values)); %probability of error theorotical
-P_Error_prc = zeros(1,length(SNR_Values)); %probability of error practical
-SNR_Real = 10.^(SNR_Values / 10); % Element-wise division and power operation to get linear SNR values
+P_Error_prc = ones(1,length(SNR_Values)); %probability of error practical
+SNR_Real = 10.^(SNR_Values / 10); % Element-wise division and power operation to get SNR values
 for i = 1:length(SNR_Values)
 
-      SNR = SNR_Real(i);
+      SNR = 10^(SNR_Values(i)/10); % Converting SNR from dB to linear
+
       Signal_Power = var(modulated_signal);
       Noise_Power = Signal_Power/SNR;
       Noise_Equation = sqrt(Noise_Power/2)*Uniform_Noise;
       Signal_Received = data_binary_BaseBand_rep + Noise_Equation;
-      Decision_Maker = sign(real(Signal_Received)); %Comparator to zero
-      error = sum(Decision_Maker ~= data_binary_BaseBand_rep); % to count error bits
-      P_Error_prc(i) = error / nb; %to get probability of error  
+      Decision_Maker = sign(real(Signal_Received)); % 
+      error = sum(Decision_Maker ~= data_binary_BaseBand_rep); % Count errors
+      P_Error_prc(i) = error / nb; % Simulated BER  
 
 end
 
 for i = 1 : length(SNR_Values)
-      SNR = SNR_Real(i);
+      SNR = 10^(SNR_Values(i)/10); % Converting SNR from dB to linear
       P_Error_thr(i) = (1/2)*erfc((sqrt(SNR)));
 end
 
 %drawing the difference between practical and theoretical
 figure;
-semilogy(SNR_Real, P_Error_thr, 'g-o');
-xlabel('SNR');
-ylabel('Bit Error Rate (P(e))');
+semilogy(SNR_Values, P_Error_thr, 'g-o');
+xlabel('SNR dB');
+ylabel('Bit Error Rate');
 hold on;
-semilogy(SNR_Real, P_Error_prc, 'r-o');
+semilogy(SNR_Values, P_Error_prc, 'r-o');
 grid on;
 legend('Theoretical','practical');
-
-
